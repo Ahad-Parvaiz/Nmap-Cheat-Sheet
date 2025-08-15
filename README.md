@@ -1,9 +1,10 @@
 # 🔍 Nmap Cheat Sheet Web Application
 
 ![Nmap Logo](https://nmap.org/images/sitelogo.png)
-![Live Logo](https://nmap-cheat-sheet.vercel.app/)
 
 A responsive, interactive Nmap command reference for security professionals and red teamers.
+
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Available-brightgreen?style=for-the-badge)](https://nmap-cheat-sheet.vercel.app/)
 
 ## 🚀 Features
 
@@ -26,4 +27,3 @@ A responsive, interactive Nmap command reference for security professionals and 
 ```bash
 git clone https://github.com/yourusername/nmap-cheatsheet.git
 cd nmap-cheatsheet
-
