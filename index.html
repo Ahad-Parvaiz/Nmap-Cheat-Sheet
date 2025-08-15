@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nmap Cheat Sheet for Red Teaming</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #2ecc71;
+            --font-main: 'Roboto', sans-serif;
+            --font-code: 'Roboto Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .search-box {
+            display: flex;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+            font-size: 1rem;
+            font-family: var(--font-code);
+        }
+
+        .search-box button {
+            padding: 0 1.2rem;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .search-box button:hover {
+            background-color: #2980b9;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .controls button {
+            padding: 0.6rem 1.2rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+        }
+
+        .controls button:hover {
+            background-color: #1a252f;
+        }
+
+        .cheat-section {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .cheat-section h2 {
+            padding: 1rem 1.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 1.3rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cheat-section h2:hover {
+            background-color: #1a252f;
+        }
+
+        .cheat-section h2 .toggle-icon {
+            transition: transform 0.3s;
+        }
+
+        .cheat-section.active h2 .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .section-content {
+            padding: 1.5rem;
+            display: none;
+        }
+
+        .cheat-section.active .section-content {
+            display: block;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--font-code);
+        }
+
+        th, td {
+            padding: 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        code {
+            font-family: var(--font-code);
+            background-color: #f5f5f5;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            color: var(--accent-color);
+        }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            color: var(--secondary-color);
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 0.2rem;
+        }
+
+        .copy-btn:hover {
+            color: var(--primary-color);
+        }
+
+        footer {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 1.5rem 0;
+            margin-top: 2rem;
+        }
+
+        footer p {
+            margin-bottom: 1rem;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .social-links a {
+            color: white;
+            font-size: 1.5rem;
+            transition: color 0.3s;
+        }
+
+        .social-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--success-color);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            th, td {
+                padding: 0.6rem;
+                font-size: 0.9rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><i class="fas fa-network-wired"></i> Nmap Cheat Sheet</h1>
+            <p>For Red Teaming and Security Professionals</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search commands...">
+            <button id="searchBtn"><i class="fas fa-search"></i></button>
+        </div>
+
+        <div class="controls">
+            <button id="toggleAll">Toggle All Sections</button>
+            <button id="copyAll">Copy All Commands</button>
+        </div>
+
+        <section class="cheat-section" id="basic-scanning">
+            <h2>1. Basic Scanning <i class="fas fa-chevron-down toggle-icon"></i></h2>
+            <div class="section-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Command</th>
+                            <th>Description</th>
+                            <th>Copy</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>nmap &lt;IP&gt;</code></td>
+                            <td>Top 1000 ports scan karega (default).</td>
+                            <td><button class="copy-btn"><i class="far fa-copy"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td><code>nmap -p- &lt;IP&gt;</code></td>
+                            <td>All 65535 ports scan karega.</td>
+                            <td><button class="copy-btn"><i class="far fa-copy"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td><code>nmap -p 21,22,80 &lt;IP&gt;</code></td>
+                            <td>Specific ports scan karega.</td>
+                            <td><button class="copy-btn"><i class="far fa-copy"></i></button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="cheat-section" id="service-version">
+            <h2>2. Service & Version Detection <i class="fas fa-chevron-down toggle-icon"></i></h2>
+            <div class="section-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Command</th>
+                            <th>Description</th>
+                            <th>Copy</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>nmap -sV &lt;IP&gt;</code></td>
+                            <td>Service name + version detect karega.</td>
+                            <td><button class="copy-btn"><i class="far fa-copy"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td><code>nmap -sV --version-intensity 9 &lt;IP&gt;</code></td>
+                            <td>Deep version detection (more accurate).</td>
+                            <td><button class="copy-btn"><i class="far fa-copy"></i></button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="cheat-section" id="os-detection">
+            <h2>3. OS Detection <i class="fas fa-chevron-down toggle-icon"></i></h2>
+            <div class="section-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Command</th>
+                            <th>Description</th>
+                            <th>Copy</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>nmap -O &lt;IP&gt;</code></td>
+                            <td>Operating System guess karega.</td>
+                            <td><button class="copy-btn"><i class="far fa-copy"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td><code>nmap -A &lt;IP&gt;</code></td>
+                            <td>Aggressive mode (OS + services + NSE scripts).</td>
+                            <td><button class="copy-btn"><i class="far fa-copy"></i></button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="cheat-section" id="timing-speed">
+            <h2>4. Timing & Speed <i class="fas fa-chevron-down toggle-icon"></i></h2>
+            <div class="section-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Command</th>
+                            <th>Description</th>
+                            <th>Copy</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>nmap -T4 &lt;IP&gt;</code></td>
+                            <td>Fast scan (good for LAN).</td>
+                            <td><button class="copy-btn"><i class="far fa-copy"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td><code>nmap -T1 &lt;IP&gt;</code></td>
+                            <td>Slow scan (stealthy).</td>
+                            <td><button class="copy-btn"><i class="far fa-copy"></i></button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="cheat-section" id="output-saving">
+            <h2>5. Output Saving <i class="fas fa-chevron-down toggle-icon"></i></h2>
+            <div class="section-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Command</th>
+                            <th>Description</th>
+                            <th>Copy</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>nmap -oN output.txt &lt;IP&gt;</code></td>
+                            <td>Normal output save karega.</td>
+                            <td><button class="copy-btn"><i class="far fa-copy"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td><code>nmap -oX output.xml &lt;IP&gt;</code></td>
+                            <td>XML output save karega.</td>
+                            <td><button class="copy-btn"><i class="far fa-copy"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td><code>nmap -oG output.gnmap &lt;IP&gt;</code></td>
+                            <td>Grepable output.</td>
+                            <td><button class="copy-btn"><i class="far fa-copy"></i></button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="cheat-section" id="nse-scripts">
+            <h2>6. NSE Scripts (Nmap Scripting Engine) <i class="fas fa-chevron-down toggle-icon"></i></h2>
+            <div class="section-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Command</th>
+                            <th>Description</th>
+                            <th>Copy</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>nmap --script vuln &lt;IP&gt;</code></td>
+                            <td>Common vulnerability check karega.</td>
+                            <td><button class="copy-btn"><i class="far fa-copy"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td><code>nmap --script http-enum &lt;IP&gt;</code></td>
+                            <td>HTTP directories enumerate karega.</td>
+                            <td><button class="copy-btn"><i class="far fa-copy"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td><code>nmap --script ftp-anon &lt;IP&gt;</code></td>
+                            <td>FTP anonymous login check karega.</td>
+                            <td><button class="copy-btn"><i class="far fa-copy"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td><code>nmap --script smb-os-discovery &lt;IP&gt;</code></td>
+                            <td>SMB service se OS info lega.</td>
+                            <td><button class="copy-btn"><i class="far fa-copy"></i></button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="cheat-section" id="stealth-scans">
+            <h2>7. Stealth Scans <i class="fas fa-chevron-down toggle-icon"></i></h2>
+            <div class="section-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Command</th>
+                            <th>Description</th>
+                            <th>Copy</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>nmap -sS &lt;IP&gt;</code></td>
+                            <td>SYN scan (stealthy, fast).</td>
+                            <td><button class="copy-btn"><i class="far fa-copy"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td><code>nmap -sF &lt;IP&gt;</code></td>
+                            <td>FIN scan (firewall bypass try).</td>
+                            <td><button class="copy-btn"><i class="far fa-copy"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td><code>nmap -Pn &lt;IP&gt;</code></td>
+                            <td>Host discovery skip (even if ICMP blocked).</td>
+                            <td><button class="copy-btn"><i class="far fa-copy"></i></button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="cheat-section" id="udp-scanning">
+            <h2>8. UDP Scanning <i class="fas fa-chevron-down toggle-icon"></i></h2>
+            <div class="section-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Command</th>
+                            <th>Description</th>
+                            <th>Copy</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>nmap -sU &lt;IP&gt;</code></td>
+                            <td>UDP scan (slow).</td>
+                            <td><button class="copy-btn"><i class="far fa-copy"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td><code>nmap -sU -p 53,161 &lt;IP&gt;</code></td>
+                            <td>Specific UDP ports.</td>
+                            <td><button class="copy-btn"><i class="far fa-copy"></i></button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Created for Red Teaming professionals | &copy; 2025 Nmap Cheat Sheet</p>
+            <div class="social-links">
+                <a href="https://github.com/Ahad-Parvaiz"><i class="fab fa-github" target="_blank"></i></a>
+                <a href="https://www.linkedin.com/in/ahadparvaiz"><i class="fab fa-linkedin" target="_blank"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <div id="notification" class="notification">Command copied to clipboard!</div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle sections
+            const sections = document.querySelectorAll('.cheat-section');
+            
+            sections.forEach(section => {
+                const header = section.querySelector('h2');
+                header.addEventListener('click', () => {
+                    section.classList.toggle('active');
+                });
+            });
+            
+            // Copy buttons
+            const copyButtons = document.querySelectorAll('.copy-btn');
+            const notification = document.getElementById('notification');
+            
+            copyButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const command = this.parentElement.parentElement.querySelector('code').textContent;
+                    navigator.clipboard.writeText(command).then(() => {
+                        showNotification();
+                    });
+                });
+            });
+            
+            function showNotification() {
+                notification.classList.add('show');
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 2000);
+            }
+            
+            // Toggle all sections button
+            const toggleAllBtn = document.getElementById('toggleAll');
+            let allExpanded = false;
+            
+            toggleAllBtn.addEventListener('click', () => {
+                allExpanded = !allExpanded;
+                sections.forEach(section => {
+                    if (allExpanded) {
+                        section.classList.add('active');
+                    } else {
+                        section.classList.remove('active');
+                    }
+                });
+                toggleAllBtn.textContent = allExpanded ? 'Collapse All Sections' : 'Expand All Sections';
+            });
+            
+            // Copy all commands button
+            const copyAllBtn = document.getElementById('copyAll');
+            
+            copyAllBtn.addEventListener('click', () => {
+                let allCommands = '';
+                document.querySelectorAll('code').forEach(code => {
+                    allCommands += code.textContent + '\n';
+                });
+                
+                navigator.clipboard.writeText(allCommands).then(() => {
+                    showNotification();
+                });
+            });
+            
+            // Search functionality
+            const searchInput = document.getElementById('searchInput');
+            const searchBtn = document.getElementById('searchBtn');
+            
+            function performSearch() {
+                const searchTerm = searchInput.value.toLowerCase();
+                
+                if (searchTerm.trim() === '') {
+                    sections.forEach(section => {
+                        section.style.display = 'block';
+                        section.querySelectorAll('tr').forEach(row => {
+                            row.style.display = '';
+                        });
+                    });
+                    return;
+                }
+                
+                sections.forEach(section => {
+                    let sectionHasMatch = false;
+                    const rows = section.querySelectorAll('tbody tr');
+                    
+                    rows.forEach(row => {
+                        const command = row.querySelector('code').textContent.toLowerCase();
+                        const description = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                        
+                        if (command.includes(searchTerm) || description.includes(searchTerm)) {
+                            row.style.display = '';
+                            sectionHasMatch = true;
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                    
+                    if (sectionHasMatch) {
+                        section.style.display = 'block';
+                        section.classList.add('active');
+                    } else {
+                        section.style.display = 'none';
+                    }
+                });
+            }
+            
+            searchBtn.addEventListener('click', performSearch);
+            searchInput.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
